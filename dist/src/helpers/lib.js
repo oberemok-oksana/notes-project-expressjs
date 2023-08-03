@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findIndexById = exports.checkForDates = exports.setDate = void 0;
+exports.formatYupErrors = exports.findIndexById = exports.checkForDates = exports.setDate = void 0;
 const MONTHS = [
     "January",
     "February",
@@ -31,3 +31,19 @@ const checkForDates = (date) => {
 exports.checkForDates = checkForDates;
 const findIndexById = (id, data) => data.findIndex((item) => item.id === id);
 exports.findIndexById = findIndexById;
+const formatYupErrors = (error) => {
+    const yupErrors = {};
+    error.inner.forEach((err) => {
+        console.log(err.path);
+        if (!err.path)
+            return;
+        if (!yupErrors[err.path]) {
+            yupErrors[err.path] = [err.message];
+        }
+        else {
+            yupErrors[err.path].push(err.message);
+        }
+    });
+    return yupErrors;
+};
+exports.formatYupErrors = formatYupErrors;

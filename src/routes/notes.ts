@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
 import notesRepository from "../repositories/notes";
-import { checkForDates, setDate } from "../helpers/lib";
+import { checkForDates, formatYupErrors, setDate } from "../helpers/lib";
 import { randomUUID } from "crypto";
+import { newNoteSchema, updateNoteSchema } from "../services/schema";
 
 const router = express.Router();
 
@@ -44,20 +45,20 @@ router.get("/stats", (req: Request, res: Response) => {
 router.get("/:id", (req: Request, res: Response) => {
   const id = req.params.id;
   const note = notesRepository.getById(id);
-  if (note) {
-    res.json(note);
-  } else {
-    res.sendStatus(404);
-  }
+
+  res.json(note);
 });
 
 router.post("/", (req: Request, res: Response) => {
-  const noteInputs = req.body;
+  newNoteSchema.validateSync(req.body, { abortEarly: false });
+  const { title, category, content } = req.body;
   const note = {
-    ...noteInputs,
+    title,
+    category,
+    content,
     created: setDate(),
     active: true,
-    dates: checkForDates(noteInputs.content),
+    dates: checkForDates(content),
     id: randomUUID(),
   };
   notesRepository.create(note);
@@ -66,38 +67,16 @@ router.post("/", (req: Request, res: Response) => {
 
 router.delete("/:id", (req: Request, res: Response) => {
   const id = req.params.id;
-  const isSuccess = notesRepository.delete(id);
-
-  if (isSuccess) {
-    res.sendStatus(204);
-  } else {
-    res.sendStatus(404);
-  }
+  notesRepository.delete(id);
+  res.sendStatus(204);
 });
 
 router.patch("/:id", (req: Request, res: Response) => {
   const id = req.params.id;
-  // if (note) {
-  //   if (title) {
-  //     note.title = title;
-  //   }
-  //   if (category) {
-  //     note.category = category;
-  //   }
-  //   if (content) {
-  //     note.content = content;
-  //     note.dates = checkForDates(content);
-  //   }
-  //   if (active !== undefined) {
-  //     note.active = active;
-  //   }
-  const isSuccess = notesRepository.update(id, req.body);
+  updateNoteSchema.validateSync(req.body, { abortEarly: false });
 
-  if (isSuccess) {
-    res.sendStatus(204);
-  } else {
-    res.sendStatus(404);
-  }
+  notesRepository.update(id, req.body);
+  res.sendStatus(204);
 });
 
 export default router;

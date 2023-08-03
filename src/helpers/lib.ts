@@ -1,3 +1,5 @@
+import { ValidationError } from "yup";
+
 const MONTHS = [
   "January",
   "February",
@@ -34,3 +36,20 @@ export const findIndexById = <T extends { id: string }>(
   id: string,
   data: T[]
 ) => data.findIndex((item) => item.id === id);
+
+export const formatYupErrors = (error: ValidationError) => {
+  const yupErrors: Record<string, string[]> = {};
+
+  error.inner.forEach((err) => {
+    console.log(err.path);
+    if (!err.path) return;
+
+    if (!yupErrors[err.path]) {
+      yupErrors[err.path] = [err.message];
+    } else {
+      yupErrors[err.path].push(err.message);
+    }
+  });
+
+  return yupErrors;
+};

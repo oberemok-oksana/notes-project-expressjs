@@ -1,3 +1,4 @@
+import NotFoundError from "../errors/NotFoundError";
 import { findIndexById } from "../helpers/lib";
 import { NoteType } from "../types";
 
@@ -73,7 +74,12 @@ class NotesRepository {
   }
 
   getById(id: string) {
-    return notes.find((item) => item.id === id);
+    const note = notes.find((item) => item.id === id);
+
+    if (!note) {
+      throw new NotFoundError("There is no such note here");
+    }
+    return note;
   }
 
   create(note: NoteType) {
@@ -82,21 +88,19 @@ class NotesRepository {
 
   update(id: string, data: Partial<NoteType>) {
     const index = findIndexById(id, notes);
-    if (index !== -1) {
-      notes[index] = { ...notes[index], ...data };
-      return true;
+    if (index === -1) {
+      throw new NotFoundError("There is no such note here");
     }
-    return false;
+
+    notes[index] = { ...notes[index], ...data };
   }
 
   delete(id: string) {
     const index = findIndexById(id, notes);
-    if (index !== -1) {
-      notes.splice(index, 1);
-      return true;
+    if (index === -1) {
+      throw new NotFoundError("There is no such note here");
     }
-
-    return false;
+    notes.splice(index, 1);
   }
 }
 

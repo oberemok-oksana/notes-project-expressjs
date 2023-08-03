@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const notes_1 = __importDefault(require("../repositories/notes"));
 const lib_1 = require("../helpers/lib");
 const crypto_1 = require("crypto");
+const schema_1 = require("../services/schema");
 const router = express_1.default.Router();
 router.get("/", (req, res) => {
     res.json(notes_1.default.getAll());
@@ -43,51 +44,32 @@ router.get("/stats", (req, res) => {
 router.get("/:id", (req, res) => {
     const id = req.params.id;
     const note = notes_1.default.getById(id);
-    if (note) {
-        res.json(note);
-    }
-    else {
-        res.sendStatus(404);
-    }
+    res.json(note);
 });
 router.post("/", (req, res) => {
-    const noteInputs = req.body;
-    const note = Object.assign(Object.assign({}, noteInputs), { created: (0, lib_1.setDate)(), active: true, dates: (0, lib_1.checkForDates)(noteInputs.content), id: (0, crypto_1.randomUUID)() });
+    schema_1.newNoteSchema.validateSync(req.body, { abortEarly: false });
+    const { title, category, content } = req.body;
+    const note = {
+        title,
+        category,
+        content,
+        created: (0, lib_1.setDate)(),
+        active: true,
+        dates: (0, lib_1.checkForDates)(content),
+        id: (0, crypto_1.randomUUID)(),
+    };
     notes_1.default.create(note);
     res.sendStatus(204);
 });
 router.delete("/:id", (req, res) => {
     const id = req.params.id;
-    const isSuccess = notes_1.default.delete(id);
-    if (isSuccess) {
-        res.sendStatus(204);
-    }
-    else {
-        res.sendStatus(404);
-    }
+    notes_1.default.delete(id);
+    res.sendStatus(204);
 });
 router.patch("/:id", (req, res) => {
     const id = req.params.id;
-    // if (note) {
-    //   if (title) {
-    //     note.title = title;
-    //   }
-    //   if (category) {
-    //     note.category = category;
-    //   }
-    //   if (content) {
-    //     note.content = content;
-    //     note.dates = checkForDates(content);
-    //   }
-    //   if (active !== undefined) {
-    //     note.active = active;
-    //   }
-    const isSuccess = notes_1.default.update(id, req.body);
-    if (isSuccess) {
-        res.sendStatus(204);
-    }
-    else {
-        res.sendStatus(404);
-    }
+    schema_1.updateNoteSchema.validateSync(req.body, { abortEarly: false });
+    notes_1.default.update(id, req.body);
+    res.sendStatus(204);
 });
 exports.default = router;

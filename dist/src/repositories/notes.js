@@ -1,5 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const NotFoundError_1 = __importDefault(require("../errors/NotFoundError"));
 const lib_1 = require("../helpers/lib");
 const notes = [
     {
@@ -71,26 +75,28 @@ class NotesRepository {
         return notes;
     }
     getById(id) {
-        return notes.find((item) => item.id === id);
+        const note = notes.find((item) => item.id === id);
+        if (!note) {
+            throw new NotFoundError_1.default("There is no such note here");
+        }
+        return note;
     }
     create(note) {
         notes.push(note);
     }
     update(id, data) {
         const index = (0, lib_1.findIndexById)(id, notes);
-        if (index !== -1) {
-            notes[index] = Object.assign(Object.assign({}, notes[index]), data);
-            return true;
+        if (index === -1) {
+            throw new NotFoundError_1.default("There is no such note here");
         }
-        return false;
+        notes[index] = Object.assign(Object.assign({}, notes[index]), data);
     }
     delete(id) {
         const index = (0, lib_1.findIndexById)(id, notes);
-        if (index !== -1) {
-            notes.splice(index, 1);
-            return true;
+        if (index === -1) {
+            throw new NotFoundError_1.default("There is no such note here");
         }
-        return false;
+        notes.splice(index, 1);
     }
 }
 const notesRepository = new NotesRepository();
