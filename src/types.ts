@@ -14,4 +14,10 @@ export type NoteInputsType = {
   content: string;
 };
 
+export type PartialNoteType = {
+  title: string;
+  category: CategoryType;
+  content: string;
+};
+
 export type CategoryType = "Task" | "Random Thought" | "Idea" | "Quote";
