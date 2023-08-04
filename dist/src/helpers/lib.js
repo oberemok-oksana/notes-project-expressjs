@@ -26,15 +26,16 @@ const setDate = () => {
 exports.setDate = setDate;
 const checkForDates = (date) => {
     const match = date.match(DATE_REGEX);
-    return (match === null || match === void 0 ? void 0 : match.join(", ")) || "";
+    return match || [];
 };
 exports.checkForDates = checkForDates;
 const findIndexById = (id, data) => data.findIndex((item) => item.id === id);
 exports.findIndexById = findIndexById;
 const formatYupErrors = (error) => {
     const yupErrors = {};
+    yupErrors["base"] = error.errors;
     error.inner.forEach((err) => {
-        console.log(err.path);
+        console.log(err);
         if (!err.path)
             return;
         if (!yupErrors[err.path]) {

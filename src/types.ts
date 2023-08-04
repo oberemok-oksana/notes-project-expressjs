@@ -3,7 +3,7 @@ export type NoteType = {
   created: string;
   category: CategoryType;
   content: string;
-  dates: string;
+  dates: string[];
   active: boolean;
   id: string;
 };
@@ -21,3 +21,8 @@ export type PartialNoteType = {
 };
 
 export type CategoryType = "Task" | "Random Thought" | "Idea" | "Quote";
+
+export type NoteSummaryType = Record<
+  CategoryType,
+  { active: number; archived: number }
+>;

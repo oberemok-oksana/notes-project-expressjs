@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import notesService from "../services/notesService";
 import { findIndexById } from "../helpers/lib";
-import notesRepository from "../repositories/notes";
+import notesRepository from "../repositories/notesRepository";
 
 const router = express.Router();
 

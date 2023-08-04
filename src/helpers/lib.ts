@@ -29,7 +29,7 @@ export const setDate = () => {
 export const checkForDates = (date: string) => {
   const match = date.match(DATE_REGEX);
 
-  return match?.join(", ") || "";
+  return match || [];
 };
 
 export const findIndexById = <T extends { id: string }>(
@@ -39,9 +39,10 @@ export const findIndexById = <T extends { id: string }>(
 
 export const formatYupErrors = (error: ValidationError) => {
   const yupErrors: Record<string, string[]> = {};
+  yupErrors["base"] = error.errors;
 
   error.inner.forEach((err) => {
-    console.log(err.path);
+    console.log(err);
     if (!err.path) return;
 
     if (!yupErrors[err.path]) {

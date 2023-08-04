@@ -3,7 +3,7 @@ import { formatYupErrors } from "../helpers/lib";
 import { NextFunction, Request, Response } from "express";
 import NotFoundError from "../errors/NotFoundError";
 
-export const errorHandler = (
+const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
@@ -18,3 +18,5 @@ export const errorHandler = (
   }
   next();
 };
+
+export default errorHandler;

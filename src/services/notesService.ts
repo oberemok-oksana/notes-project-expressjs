@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
-import { checkForDates, findIndexById, setDate } from "../helpers/lib";
-import notesRepository from "../repositories/notes";
-import { NoteType, PartialNoteType } from "../types";
+import { checkForDates, setDate } from "../helpers/lib";
+import notesRepository from "../repositories/notesRepository";
+import { NoteSummaryType, NoteType, PartialNoteType } from "../types";
 import { newNoteSchema, updateNoteSchema } from "./notesSchema";
 
 class NotesService {
@@ -14,7 +14,7 @@ class NotesService {
   }
 
   create(data: PartialNoteType) {
-    newNoteSchema.validateSync(data, { abortEarly: false });
+    newNoteSchema.validateSync(data, { abortEarly: false, strict: true });
     const { title, category, content } = data;
     const note = {
       title,
@@ -33,12 +33,20 @@ class NotesService {
   }
 
   update(id: string, data: Partial<NoteType>) {
-    updateNoteSchema.validateSync(data, { abortEarly: false });
+    updateNoteSchema.validateSync(data, { abortEarly: false, strict: true });
+
+    if (data.content) {
+      return notesRepository.update(id, {
+        ...data,
+        dates: checkForDates(data.content),
+      });
+    }
+
     return notesRepository.update(id, data);
   }
 
   getStats() {
-    let result = {
+    let result: NoteSummaryType = {
       Idea: {
         active: 0,
         archived: 0,
